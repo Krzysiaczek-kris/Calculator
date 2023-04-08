@@ -9,6 +9,7 @@ class Variables:
         self.number2 = 0
         self.result = 0
         self.fresh = False
+        self.float = False
 
     def set_number_1(self, number):
         self.number = number
@@ -51,6 +52,7 @@ class UI(QMainWindow):
         self.pushButton_7.clicked.connect(lambda: self.update_display('7'))
         self.pushButton_8.clicked.connect(lambda: self.update_display('8'))
         self.pushButton_9.clicked.connect(lambda: self.update_display('9'))
+        self.pushButton_comma.clicked.connect(lambda: self.update_display('.'))
 
         self.pushButton_plus.clicked.connect(lambda: self.set_operation('+'))
         self.pushButton_minus.clicked.connect(lambda: self.set_operation('-'))
@@ -71,21 +73,28 @@ class UI(QMainWindow):
             self.lcdNumber.display('0')
             self.vars.set_number_1(0)
             self.vars.set_number_2(0)
-
         text = self.lcdNumber.value()
         if text == '0':
             text = ''
-        self.lcdNumber.display(float(text)*10 + float(value))
+        if value == '.':
+            self.vars.float = True
+            return
+        if self.vars.float:
+            self.lcdNumber.display(float(text) + float(value)/10)
+        else:
+            self.lcdNumber.display(float(text)*10 + float(value))
 
     def set_operation(self, operation):
         self.vars.set_number_1(float(self.lcdNumber.value()))
         self.lcdNumber.display('0')
         self.operation = operation
         self.vars.fresh = False
+        self.vars.float = False
 
     def calculate_result(self):
         self.vars.set_number_2(float(self.lcdNumber.value()))
         self.vars.fresh = True
+        self.vars.float = False
         if self.operation == '+':
             result = self.vars.add()
         elif self.operation == '-':
